@@ -1,0 +1,662 @@
+;
+; AssemblerTP3.asm
+;
+; Created: 19/05/2022 12:09:38
+; Author : 20091
+;
+
+
+; Replace with your application code
+start:
+//    --- ../../../../crt1/gcrt1.S ---------------------------------------------------
+  CLR R1        //Clear Register 
+  OUT 0x3F,R1        //Out to I/O location 
+  SER R28        //Set Register 
+  LDI R29,0x08        //Load immediate 
+  OUT 0x3E,R29        //Out to I/O location 
+  OUT 0x3D,R28        //Out to I/O location 
+//--- No source file -------------------------------------------------------------
+  LDI R17,0x01        //Load immediate 
+  LDI R26,0x00        //Load immediate 
+  LDI R27,0x01        //Load immediate 
+  LDI R30,0x28        //Load immediate 
+  LDI R31,0x05        //Load immediate 
+  RJMP PC+0x0003        //Relative jump 
+  LPM R0,Z+        //Load program memory and postincrement 
+  ST X+,R0        //Store indirect and postincrement 
+  CPI R26,0x0A        //Compare with immediate 
+  CPC R27,R17        //Compare with carry 
+  BRNE PC-0x04        //Branch if not equal 
+  LDI R18,0x01        //Load immediate 
+  LDI R26,0x0A        //Load immediate 
+  LDI R27,0x01        //Load immediate 
+  RJMP PC+0x0002        //Relative jump 
+  ST X+,R1        //Store indirect and postincrement 
+  CPI R26,0x16        //Compare with immediate 
+  CPC R27,R18        //Compare with carry 
+  BRNE PC-0x03        //Branch if not equal 
+  CALL 0x00000178        //Call subroutine 
+  JMP 0x00000292        //Jump 
+  JMP 0x00000000        //Jump 
+//--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+    //DDRD |= (1<<DHT11_PIN);
+  IN R24,0x0A        //In from I/O location 
+  ORI R24,0x80        //Logical OR with immediate 
+  OUT 0x0A,R24        //Out to I/O location 
+    //PORTD &= ~(1<<DHT11_PIN); /* set to low pin */
+  IN R24,0x0B        //In from I/O location 
+  ANDI R24,0x7F        //Logical AND with immediate 
+  OUT 0x0B,R24        //Out to I/O location 
+//--- c:\program files (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\util/delay.h 
+    //__builtin_avr_delay_cycles(__ticks_dc);
+  SER R18        //Set Register 
+  LDI R24,0xF9        //Load immediate 
+  LDI R25,0x00        //Load immediate 
+  SUBI R18,0x01        //Subtract immediate 
+  SBCI R24,0x00        //Subtract immediate with carry 
+  SBCI R25,0x00        //Subtract immediate with carry 
+  BRNE PC-0x03        //Branch if not equal 
+  RJMP PC+0x0001        //Relative jump 
+
+//--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+    //PORTD |= (1<<DHT11_PIN); /* set to high pin */
+  IN R24,0x0B        //In from I/O location 
+  ORI R24,0x80        //Logical OR with immediate 
+  OUT 0x0B,R24        //Out to I/O location 
+  RET         //Subroutine return 
+    //DDRD &= ~(1<<DHT11_PIN);
+  IN R24,0x0A        //In from I/O location 
+  ANDI R24,0x7F        //Logical AND with immediate 
+  OUT 0x0A,R24        //Out to I/O location 
+    //while(PIND & (1<<DHT11_PIN));
+  SBIC 0x09,7        //Skip if bit in I/O register cleared 
+  RJMP PC-0x0001        //Relative jump 
+    //while((PIND & (1<<DHT11_PIN))==0);
+  SBIS 0x09,7        //Skip if bit in I/O register set 
+  RJMP PC-0x0001        //Relative jump 
+    //while(PIND & (1<<DHT11_PIN));
+  SBIC 0x09,7        //Skip if bit in I/O register cleared 
+  RJMP PC-0x0001        //Relative jump 
+//--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+
+  RET         //Subroutine return 
+    //for (int q=0; q<8; q++)
+  LDI R24,0x00        //Load immediate 
+  LDI R25,0x00        //Load immediate 
+  RJMP PC+0x0019        //Relative jump 
+        //while((PIND & (1<<DHT11_PIN)) == 0); /* check received bit */
+  SBIS 0x09,7        //Skip if bit in I/O register set 
+  RJMP PC-0x0001        //Relative jump 
+//--- c:\program files (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\util/delay.h 
+    //__builtin_avr_delay_cycles(__ticks_dc);
+  LDI R18,0xA0        //Load immediate 
+  DEC R18        //Decrement 
+  BRNE PC-0x01        //Branch if not equal 
+//--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+        //if(PIND&(1<<DHT11_PIN))/* if high pulse is greater than 30ms */
+  SBIS 0x09,7        //Skip if bit in I/O register set 
+  RJMP PC+0x000A        //Relative jump 
+        //c = (c<<1)|(0x01); /* then its logic HIGH */
+  LDS R18,0x010A        //Load direct from data space 
+  LDI R19,0x00        //Load immediate 
+  LSL R18        //Logical Shift Left 
+  ROL R19        //Rotate Left Through Carry 
+  ORI R18,0x01        //Logical OR with immediate 
+  STS 0x010A,R18        //Store direct to data space 
+  RJMP PC+0x0006        //Relative jump 
+        //c = (c<<1);
+  LDS R18,0x010A        //Load direct from data space 
+  LSL R18        //Logical Shift Left 
+  STS 0x010A,R18        //Store direct to data space 
+        //while(PIND & (1<<DHT11_PIN));
+  SBIC 0x09,7        //Skip if bit in I/O register cleared 
+  RJMP PC-0x0001        //Relative jump 
+    //for (int q=0; q<8; q++)
+  ADIW R24,0x01        //Add immediate to word 
+//--- No source file -------------------------------------------------------------
+  CPI R24,0x08        //Compare with immediate 
+  CPC R25,R1        //Compare with carry 
+  BRLT PC-0x1A        //Branch if less than, signed 
+  LDS R24,0x010A        //Load direct from data space 
+  RET         //Subroutine return 
+  LDS R24,0x010D        //Load direct from data space 
+//--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+  LDS R25,0x010E        //Load direct from data space 
+  STS 0x010C,R25        //Store direct to data space 
+  STS 0x010B,R24        //Store direct to data space 
+    //sel0;
+  SER R20        //Set Register 
+  OUT 0x05,R20        //Out to I/O location 
+    //PORTD=conver[temp %10];
+  LDS R30,0x010B        //Load direct from data space 
+  LDS R31,0x010C        //Load direct from data space 
+  MOVW R18,R30        //Copy register pair 
+  LDI R26,0xCD        //Load immediate 
+  LDI R27,0xCC        //Load immediate 
+  CALL 0x00000283        //Call subroutine 
+  LSR R25        //Logical shift right 
+  ROR R24        //Rotate right through carry 
+  LSR R25        //Logical shift right 
+  ROR R24        //Rotate right through carry 
+  LSR R25        //Logical shift right 
+  ROR R24        //Rotate right through carry 
+  MOVW R18,R24        //Copy register pair 
+  LSL R18        //Logical Shift Left 
+  ROL R19        //Rotate Left Through Carry 
+  LSL R24        //Logical Shift Left 
+  ROL R25        //Rotate Left Through Carry 
+  LSL R24        //Logical Shift Left 
+  ROL R25        //Rotate Left Through Carry 
+  LSL R24        //Logical Shift Left 
+  ROL R25        //Rotate Left Through Carry 
+  ADD R24,R18        //Add without carry 
+//--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+  ADC R25,R19        //Add with carry 
+  MOVW R18,R30        //Copy register pair 
+  SUB R18,R24        //Subtract without carry 
+  SBC R19,R25        //Subtract with carry 
+  MOVW R30,R18        //Copy register pair 
+  SUBI R30,0x00        //Subtract immediate 
+  SBCI R31,0xFF        //Subtract immediate with carry 
+  LDD R24,Z+0        //Load indirect with displacement 
+  OUT 0x0B,R24        //Out to I/O location 
+    //sel4;
+  LDI R24,0xF7        //Load immediate 
+  OUT 0x05,R24        //Out to I/O location 
+    //temp= temp /10;
+  LDS R18,0x010B        //Load direct from data space 
+  LDS R19,0x010C        //Load direct from data space 
+  CALL 0x00000283        //Call subroutine 
+  LSR R25        //Logical shift right 
+  ROR R24        //Rotate right through carry 
+  LSR R25        //Logical shift right 
+  ROR R24        //Rotate right through carry 
+  LSR R25        //Logical shift right 
+  ROR R24        //Rotate right through carry 
+  STS 0x010C,R25        //Store direct to data space 
+  STS 0x010B,R24        //Store direct to data space 
+    sel0;
+  OUT 0x05,R20        //Out to I/O location 
+    //PORTD=conver[temp %10];
+  LDS R30,0x010B        //Load direct from data space 
+  LDS R31,0x010C        //Load direct from data space 
+  MOVW R18,R30        //Copy register pair 
+  CALL 0x00000283        //Call subroutine 
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ MOVW R18,R24        //Copy register pair 
+ LSL R18        //Logical Shift Left 
+ ROL R19        //Rotate Left Through Carry 
+ LSL R24        //Logical Shift Left 
+ ROL R25        //Rotate Left Through Carry 
+ LSL R24        //Logical Shift Left 
+ ROL R25        //Rotate Left Through Carry 
+ LSL R24        //Logical Shift Left 
+ ROL R25        //Rotate Left Through Carry 
+ ADD R24,R18        //Add without carry 
+ ADC R25,R19        //Add with carry 
+ MOVW R18,R30        //Copy register pair 
+ SUB R18,R24        //Subtract without carry 
+ SBC R19,R25        //Subtract with carry 
+ MOVW R30,R18        //Copy register pair 
+ SUBI R30,0x00        //Subtract immediate 
+ SBCI R31,0xFF        //Subtract immediate with carry 
+ LDD R24,Z+0        //Load indirect with displacement 
+ OUT 0x0B,R24        //Out to I/O location 
+    //sel3;
+ LDI R24,0xFB        //Load immediate 
+ OUT 0x05,R24        //Out to I/O location 
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+    //temp= temp /10;
+ LDS R18,0x010B        //Load direct from data space 
+ LDS R19,0x010C        //Load direct from data space 
+ CALL 0x00000283        //Call subroutine 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ STS 0x010C,R25        //Store direct to data space 
+ STS 0x010B,R24        //Store direct to data space 
+    //sel0;
+ OUT 0x05,R20        //Out to I/O location 
+    //PORTD=conver[temp %10];
+ LDS R30,0x010B        //Load direct from data space 
+ LDS R31,0x010C        //Load direct from data space 
+ MOVW R18,R30        //Copy register pair 
+ CALL 0x00000283        //Call subroutine 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ MOVW R18,R24        //Copy register pair 
+ LSL R18        //Logical Shift Left 
+ ROL R19        //Rotate Left Through Carry 
+ LSL R24        //Logical Shift Left 
+ ROL R25        //Rotate Left Through Carry 
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+ LSL R24        //Logical Shift Left 
+ ROL R25        //Rotate Left Through Carry 
+ LSL R24        //Logical Shift Left 
+ ROL R25        //Rotate Left Through Carry 
+ ADD R24,R18        //Add without carry 
+ ADC R25,R19        //Add with carry 
+ MOVW R18,R30        //Copy register pair 
+ SUB R18,R24        //Subtract without carry 
+ SBC R19,R25        //Subtract with carry 
+ MOVW R30,R18        //Copy register pair 
+ SUBI R30,0x00        //Subtract immediate 
+ SBCI R31,0xFF        //Subtract immediate with carry 
+ LDD R24,Z+0        //Load indirect with displacement 
+ OUT 0x0B,R24        //Out to I/O location 
+    //sel2;
+ LDI R24,0xFD        //Load immediate 
+ OUT 0x05,R24        //Out to I/O location 
+    //temp= temp /10;
+ LDS R18,0x010B        //Load direct from data space 
+ LDS R19,0x010C        //Load direct from data space 
+ CALL 0x00000283        //Call subroutine 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ STS 0x010C,R25        //Store direct to data space 
+ STS 0x010B,R24        //Store direct to data space 
+--- c:\program files (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\util/delay.h 
+    //__builtin_avr_delay_cycles(__ticks_dc);
+ SER R19        //Set Register 
+ LDI R24,0xF9        //Load immediate 
+ LDI R25,0x00        //Load immediate 
+ SUBI R19,0x01        //Subtract immediate 
+ SBCI R24,0x00        //Subtract immediate with carry 
+ SBCI R25,0x00        //Subtract immediate with carry 
+ BRNE PC-0x03        //Branch if not equal 
+ RJMP PC+0x0001        //Relative jump  
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+    //sel0;
+ OUT 0x05,R20        //Out to I/O location 
+    //PORTD=conver[temp %10];
+ LDS R20,0x010B        //Load direct from data space 
+ LDS R21,0x010C        //Load direct from data space 
+ MOVW R18,R20        //Copy register pair 
+ CALL 0x00000283        //Call subroutine 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ MOVW R18,R24        //Copy register pair 
+ LSL R18        //Logical Shift Left 
+ ROL R19        //Rotate Left Through Carry 
+ LSL R24        //Logical Shift Left 
+ ROL R25        //Rotate Left Through Carry 
+ LSL R24        //Logical Shift Left 
+ ROL R25        //Rotate Left Through Carry 
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+ LSL R24        //Logical Shift Left 
+ ROL R25        //Rotate Left Through Carry 
+ ADD R24,R18        //Add without carry 
+ ADC R25,R19        //Add with carry 
+ MOVW R18,R20        //Copy register pair 
+ SUB R18,R24        //Subtract without carry 
+ SBC R19,R25        //Subtract with carry 
+ MOVW R30,R18        //Copy register pair 
+ SUBI R30,0x00        //Subtract immediate 
+ SBCI R31,0xFF        //Subtract immediate with carry 
+ LDD R24,Z+0        //Load indirect with displacement 
+ OUT 0x0B,R24        //Out to I/O location 
+    //sel1;
+ LDI R24,0xFE        //Load immediate 
+ OUT 0x05,R24        //Out to I/O location 
+    //temp= temp /10;
+ LDS R18,0x010B        //Load direct from data space 
+ LDS R19,0x010C        //Load direct from data space 
+ CALL 0x00000283        //Call subroutine 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ LSR R25        //Logical shift right 
+ ROR R24        //Rotate right through carry 
+ STS 0x010C,R25        //Store direct to data space 
+ STS 0x010B,R24        //Store direct to data space 
+--- c:\program files (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\util/delay.h 
+    //__builtin_avr_delay_cycles(__ticks_dc);
+ LDI R24,0x1F        //Load immediate 
+ LDI R25,0x4E        //Load immediate 
+--- c:\program files (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\util/delay.h 
+ SBIW R24,0x01        //Subtract immediate from word 
+ BRNE PC-0x01        //Branch if not equal 
+ RJMP PC+0x0001        //Relative jump 
+ 
+ RET         Subroutine return 
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+
+ PUSH R28        //Push register on stack 
+ PUSH R29        //Push register on stack 
+ IN R28,0x3D        //In from I/O location 
+ IN R29,0x3E        //In from I/O location 
+ SUBI R28,0x40        //Subtract immediate 
+ SBC R29,R1        //Subtract with carry 
+ IN R0,0x3F        //In from I/O location 
+ CLI         //Global Interrupt Disable 
+ OUT 0x3E,R29        //Out to I/O location 
+ OUT 0x3F,R0        //Out to I/O location 
+ OUT 0x3D,R28        //Out to I/O location 
+    //DDRD = 0xFF;
+ SER R24        //Set Register 
+ OUT 0x0A,R24        //Out to I/O location 
+    //DDRB = 0B00001111;
+ LDI R24,0x0F        //Load immediate 
+ OUT 0x04,R24        //Out to I/O location 
+    //char ponteiro = 0;
+ MOV R15,R1        //Copy register 
+    //char mostra = 1;
+ LDI R17,0x01        //Load immediate 
+    //char estadoBTN = SOLTO;
+ LDI R16,0x00        //Load immediate 
+        //if(BTNisPressed){
+ SBIC 0x03,4        //Skip if bit in I/O register cleared 
+            //estadoBTN = PRESSED;
+ LDI R16,0x01        //Load immediate 
+        //if((BTNisPressed) == SOLTO && estadoBTN == PRESSED){
+ SBIC 0x03,4        //Skip if bit in I/O register cleared 
+ RJMP PC+0x000A        //Relative jump 
+--- No source file -------------------------------------------------------------
+ CPI R16,0x01        //Compare with immediate 
+ BRNE PC+0x08        //Branch if not equal 
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+            //if(mostra==1){
+ CPI R17,0x01        //Compare with immediate 
+ BRNE PC+0x04        //Branch if not equal 
+                //mostra = 0;
+ LDI R17,0x00        //Load immediate 
+            //estadoBTN=SOLTO;
+ LDI R16,0x00        //Load immediate 
+ RJMP PC+0x0003        //Relative jump 
+            //else{mostra=1;}
+ LDI R17,0x01        //Load immediate 
+            //estadoBTN=SOLTO;
+ LDI R16,0x00        //Load immediate 
+        //Request(); /* send start pulse */
+ CALL 0x00000053        //Call subroutine 
+        //Response(); /* receive response */
+ CALL 0x00000066        //Call subroutine 
+        //I_RH=Receive_data(); /* store first eight bit in I_RH */
+ CALL 0x00000070        //Call subroutine 
+ STS 0x0114,R24        //Store direct to data space 
+        //D_RH=Receive_data(); /* store next eight bit in D_RH */
+ CALL 0x00000070        Call subroutine 
+ STS 0x0111,R24        Store direct to data space 
+        I_Temp=Receive_data(); /* store next eight bit in I_Temp */
+ CALL 0x00000070        Call subroutine 
+ STS 0x0113,R24        Store direct to data space 
+        D_Temp=Receive_data(); /* store next eight bit in D_Temp */
+ CALL 0x00000070        Call subroutine 
+ STS 0x0115,R24        Store direct to data space 
+        CheckSum=Receive_data();/* store next eight bit in CheckSum */
+ CALL 0x00000070        Call subroutine 
+ STS 0x0112,R24        Store direct to data space 
+--- c:\program files (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\util/delay.h 
+    __builtin_avr_delay_cycles(__ticks_dc);
+ SER R18        Set Register 
+ LDI R19,0xF9        Load immediate 
+ LDI R20,0x00        Load immediate 
+ SUBI R18,0x01        Subtract immediate 
+ SBCI R19,0x00        Subtract immediate with carry 
+ SBCI R20,0x00        Subtract immediate with carry 
+--- c:\program files (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\util/delay.h 
+ BRNE PC-0x03        Branch if not equal 
+ RJMP PC+0x0001        Relative jump  
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+        if ((I_RH + D_RH + I_Temp + D_Temp) != CheckSum)
+ LDS R22,0x0114        Load direct from data space 
+ LDI R23,0x00        Load immediate 
+ LDS R24,0x0111        Load direct from data space 
+ LDI R25,0x00        Load immediate 
+ MOVW R20,R22        Copy register pair 
+ ADD R20,R24        Add without carry 
+ ADC R21,R25        Add with carry 
+ LDS R30,0x0113        Load direct from data space 
+ LDI R31,0x00        Load immediate 
+ ADD R20,R30        Add without carry 
+ ADC R21,R31        Add with carry 
+ LDS R18,0x0115        Load direct from data space 
+ LDI R19,0x00        Load immediate 
+ ADD R20,R18        Add without carry 
+ ADC R21,R19        Add with carry 
+ LDS R26,0x0112        Load direct from data space 
+ LDI R27,0x00        Load immediate 
+ CP R20,R26        Compare 
+ CPC R21,R27        Compare with carry 
+ BREQ PC+0x02        Branch if equal 
+ RJMP PC+0x0040        Relative jump 
+            array1[ponteiro]= I_Temp*100+D_Temp*10;
+ MOV R20,R15        Copy register 
+ LDI R21,0x00        Load immediate 
+ MOV R0,R31        Copy register 
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+ LDI R31,0x64        Load immediate 
+ MOV R11,R31        Copy register 
+ MOV R31,R0        Copy register 
+ MUL R11,R30        Multiply unsigned 
+ MOVW R26,R0        Copy register pair 
+ MUL R11,R31        Multiply unsigned 
+ ADD R27,R0        Add without carry 
+ CLR R1        Clear Register 
+ MOVW R30,R18        Copy register pair 
+ LSL R30        Logical Shift Left 
+ ROL R31        Rotate Left Through Carry 
+ LSL R18        Logical Shift Left 
+ ROL R19        Rotate Left Through Carry 
+ LSL R18        Logical Shift Left 
+ ROL R19        Rotate Left Through Carry 
+ LSL R18        Logical Shift Left 
+ ROL R19        Rotate Left Through Carry 
+ ADD R18,R30        Add without carry 
+ ADC R19,R31        Add with carry 
+ ADD R18,R26        Add without carry 
+ ADC R19,R27        Add with carry 
+ MOVW R30,R20        Copy register pair 
+ LSL R30        Logical Shift Left 
+ ROL R31        Rotate Left Through Carry 
+ LDI R20,0x01        Load immediate 
+ LDI R21,0x00        Load immediate 
+ ADD R20,R28        Add without carry 
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+ ADC R21,R29        Add with carry 
+ ADD R30,R20        Add without carry 
+ ADC R31,R21        Add with carry 
+ STD Z+1,R19        Store indirect with displacement 
+ STD Z+0,R18        Store indirect with displacement 
+            array2[ponteiro]= I_RH*100+D_RH*10;
+  MUL R11,R22        Multiply unsigned 
+  MOVW R20,R0        Copy register pair 
+  MUL R11,R23        Multiply unsigned 
+  ADD R21,R0        Add without carry 
+  CLR R1        Clear Register 
+  MOVW R22,R24        Copy register pair 
+  LSL R22        Logical Shift Left 
+  ROL R23        Rotate Left Through Carry 
+  MOVW R18,R24        Copy register pair 
+  LSL R18        Logical Shift Left 
+  ROL R19        Rotate Left Through Carry 
+  LSL R18        Logical Shift Left 
+  ROL R19        Rotate Left Through Carry 
+  LSL R18        Logical Shift Left 
+  ROL R19        Rotate Left Through Carry 
+  MOVW R24,R22        Copy register pair 
+  ADD R24,R18        Add without carry 
+  ADC R25,R19        Add with carry 
+  ADD R24,R20        Add without carry 
+  ADC R25,R21        Add with carry 
+  STD Z+33,R25        Store indirect with displacement 
+  STD Z+32,R24        Store indirect with displacement 
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+            if (ponteiro>=9){
+  LDI R21,0x08        Load immediate 
+  CP R21,R15        Compare 
+  BRCS PC+0x03        Branch if carry set 
+            }else{ponteiro++;}
+  INC R15        Increment 
+  RJMP PC+0x0002        Relative jump 
+                ponteiro = 0;
+  MOV R15,R1        Copy register 
+--- c:\program files (x86)\atmel\studio\7.0\toolchain\avr8\avr8-gnu-toolchain\avr\include\util/delay.h 
+    __builtin_avr_delay_cycles(__ticks_dc);
+  SER R24        Set Register 
+  LDI R25,0xF9        Load immediate 
+  LDI R18,0x00        Load immediate 
+  SUBI R24,0x01        Subtract immediate 
+  SBCI R25,0x00        Subtract immediate with carry 
+  SBCI R18,0x00        Subtract immediate with carry 
+  BRNE PC-0x03        Branch if not equal 
+  RJMP PC+0x0001        Relative jump 
+
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+        for (char i=0; i<9; i++){
+  LDI R24,0x00        Load immediate 
+        sum2=0;
+  LDI R20,0x00        Load immediate 
+  LDI R21,0x00        Load immediate 
+  MOVW R22,R20        Copy register pair 
+        sum1=0;
+  MOV R8,R1        Copy register 
+  MOV R9,R1        Copy register 
+  MOVW R10,R8        Copy register pair 
+        for (char i=0; i<9; i++){
+  RJMP PC+0x0018        Relative jump 
+            sum1+=array1[i];
+  MOV R30,R24        Copy register 
+  LDI R31,0x00        Load immediate 
+  LSL R30        Logical Shift Left 
+  ROL R31        Rotate Left Through Carry 
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+  LDI R18,0x01        Load immediate 
+  LDI R19,0x00        Load immediate 
+  ADD R18,R28        Add without carry 
+  ADC R19,R29        Add with carry 
+  ADD R30,R18        Add without carry 
+  ADC R31,R19        Add with carry 
+  LDD R18,Z+0        Load indirect with displacement 
+  LDD R19,Z+1        Load indirect with displacement 
+  ADD R8,R18        Add without carry 
+  ADC R9,R19        Add with carry 
+  ADC R10,R1        Add with carry 
+  ADC R11,R1        Add with carry 
+            sum2+=array2[i];
+  LDD R18,Z+32        Load indirect with displacement 
+  LDD R19,Z+33        Load indirect with displacement 
+  ADD R20,R18        Add without carry 
+  ADC R21,R19        Add with carry 
+  ADC R22,R1        Add with carry 
+  ADC R23,R1        Add with carry 
+        for (char i=0; i<9; i++){
+  SUBI R24,0xFF        Subtract immediate 
+--- No source file -------------------------------------------------------------
+  CPI R24,0x09        Compare with immediate 
+  BRCS PC-0x18        Branch if carry set 
+  CPI R17,0x01        Compare with immediate 
+  BRNE PC+0x12        Branch if not equal 
+  MOVW R24,R10        Copy register pair 
+  MOVW R22,R8        Copy register pair 
+  LDI R18,0x0A        Load immediate 
+  LDI R19,0x00        Load immediate 
+--- C:\Users\20091\Documents\Atmel Studio\7.0\TP3\TP3\Debug/.././main.c --------
+  LDI R20,0x00        Load immediate 
+  LDI R21,0x00        Load immediate 
+  CALL 0x00000261        Call subroutine 
+  STS 0x010D,R18        Store direct to data space 
+  STS 0x010E,R19        Store direct to data space 
+  STS 0x010F,R20        Store direct to data space 
+  STS 0x0110,R21        Store direct to data space 
+  RJMP PC+0x0011        Relative jump 
+            counter = sum2/10;
+  MOVW R24,R22        Copy register pair 
+  MOVW R22,R20        Copy register pair 
+  LDI R18,0x0A        Load immediate 
+  LDI R19,0x00        Load immediate 
+  LDI R20,0x00        Load immediate 
+  LDI R21,0x00        Load immediate 
+  CALL 0x00000261        Call subroutine 
+  STS 0x010D,R18        Store direct to data space 
+  STS 0x010E,R19        Store direct to data space 
+  STS 0x010F,R20        Store direct to data space 
+  STS 0x0110,R21        Store direct to data space 
+        write();
+  CALL 0x00000091        Call subroutine 
+    }
+  RJMP PC-0x00D6        Relative jump 
+--- No source file -------------------------------------------------------------
+  LDI R26,0x21        Load immediate 
+  MOV R1,R26        Copy register 
+  SUB R26,R26        Subtract without carry 
+  SUB R27,R27        Subtract without carry 
+  MOVW R30,R26        Copy register pair 
+  RJMP PC+0x000E        Relative jump 
+--- No source file -------------------------------------------------------------
+  ROL R26        Rotate Left Through Carry 
+  ROL R27        Rotate Left Through Carry 
+  ROL R30        Rotate Left Through Carry 
+  ROL R31        Rotate Left Through Carry 
+  CP R26,R18        Compare 
+  CPC R27,R19        Compare with carry 
+  CPC R30,R20        Compare with carry 
+  CPC R31,R21        Compare with carry 
+  BRCS PC+0x05        Branch if carry set 
+  SUB R26,R18        Subtract without carry 
+  SBC R27,R19        Subtract with carry 
+  SBC R30,R20        Subtract with carry 
+  SBC R31,R21        Subtract with carry 
+  ROL R22        Rotate Left Through Carry 
+  ROL R23        Rotate Left Through Carry 
+  ROL R24        Rotate Left Through Carry 
+  ROL R25        Rotate Left Through Carry 
+  DEC R1        Decrement 
+  BRNE PC-0x12        Branch if not equal 
+  COM R22        One's complement 
+  COM R23        One's complement 
+  COM R24        One's complement 
+  COM R25        One's complement 
+  MOVW R18,R22        Copy register pair 
+  MOVW R20,R24        Copy register pair 
+  MOVW R22,R26        Copy register pair 
+  MOVW R24,R30        Copy register pair 
+--- No source file -------------------------------------------------------------
+  RET         Subroutine return 
+  MUL R26,R18        Multiply unsigned 
+  MOVW R22,R0        Copy register pair 
+  MUL R27,R19        Multiply unsigned 
+  MOVW R24,R0        Copy register pair 
+  MUL R26,R19        Multiply unsigned 
+  ADD R23,R0        Add without carry 
+  ADC R24,R1        Add with carry 
+  CLR R1        Clear Register 
+  ADC R25,R1        Add with carry 
+  MUL R27,R18        Multiply unsigned 
+  ADD R23,R0        Add without carry 
+  ADC R24,R1        Add with carry 
+  CLR R1        Clear Register 
+  ADC R25,R1        Add with carry 
+  RET         Subroutine return 
+  CLI         Global Interrupt Disable 
+  RJMP PC-0x0000        Relative jump 
+  CPC R3,R31        Compare with carry 
+  SBCI R21,0xFB        Subtract immediate with carry 
+  ORI R22,0xD6        Logical OR with immediate 
+  CPC R23,R29        Compare with carry 
+  ORI R23,0xFF        Logical OR with immediate 
+    rjmp start
+
+
